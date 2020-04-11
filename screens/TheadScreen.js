@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Platform, StyleSheet, Text, View } from 'react-native';
 import ThreadDetail from "../components/Theads/Detail";
 import get from "lodash/get";
+import {themes} from "../themes";
 
 export default function ThreadDetailScreen(props) {
   const title = get(props, 'route.params.title', ``);
@@ -17,9 +18,9 @@ export default function ThreadDetailScreen(props) {
       ,
       headerTintColor: '#ffffff',
       headerStyle: {
-        backgroundColor: '#2F95D6',
+        backgroundColor: themes.headerTitle.backgroundColor,
         borderBottomColor: '#ffffff',
-        borderBottomWidth: 3,
+        borderBottomWidth: 1,
       },
       headerTitleStyle: {
         fontSize: 18,

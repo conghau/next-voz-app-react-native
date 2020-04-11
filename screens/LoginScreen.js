@@ -1,14 +1,25 @@
 import * as React from 'react';
-import { AsyncStorage, Platform, StyleSheet, Text, View } from 'react-native';
-import { Button, Input } from 'react-native-elements';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import { loginAction } from "../services";
+import {Alert, AsyncStorage, Image, Text, View} from 'react-native';
+import {Button, Input} from 'react-native-elements';
+import {loginAction} from "../services";
 import get from 'lodash/get';
+import {
+  clearDataAfterLogout,
+  getUserAuth,
+  saveUserAuth
+} from "../utils/storage";
+import {themes} from "../themes";
 
 class LoginScreen extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      showAlertLoginFail: false,
+      userName: '',
+      password: '',
+      loginSuccess: false,
+      userAuth: {},
+    };
   }
 
   // const title = get(props, 'route.params.title', ``);
@@ -37,71 +48,161 @@ class LoginScreen extends React.Component {
   //   }
   // );
 
-  async componentDidMount() {
-    const value = await this._retrieveData();
-    this.setState({ value })
+  async UNSAFE_componentWillMount() {
+    const userAuth = await this.retrieveData();
+    this.setState({userAuth})
   }
 
-  _storeData = async (value = []) => {
+  storeData = async (value = {}) => {
     try {
-      await AsyncStorage.setItem('@nextvoz:cookie', JSON.stringify(value));
+      await saveUserAuth(value)
+      // await AsyncStorage.setItem('@nextvoz:cookie', JSON.stringify(value));
     } catch (error) {
       // Error saving data
     }
   };
 
-  _retrieveData = async () => {
-    let value = '';
-    try {
-      value = await AsyncStorage.getItem('@nextvoz:cookie');
-    } catch (error) {
-      // Error retrieving data
-    }
-    return value;
+  retrieveData = async () => {
+    return await getUserAuth();
   };
 
-  handleLogin = () => {
-    loginAction({
-      username: 'ienjoymylife',
-      password: 'Aesx5099'
-    }).then(async (resp) => {
-      const { data } = resp;
-      await AsyncStorage.clear();
+  handleLogout = async () => {
+    await clearDataAfterLogout();
+    this.props.navigation.navigate('Forums');
+  }
 
-      this._storeData(get(data, 'data.cookie', []));
+  handleLogin = () => {
+    const {userName, password} = this.state;
+
+    loginAction({
+      username: userName, //'ienjoymylife',
+      password: password, //'Aesx5099'
+    }).then(async (resp) => {
+      const {data} = resp;
+      if (get(data, 'success')) {
+        await AsyncStorage.clear();
+        this.setState({loginSuccess: true});
+        await this.storeData({
+          userName,
+          cookies: get(data, 'data.cookie', []),
+        });
+        this.props.navigation.navigate('Forums');
+      } else {
+        this.setState({
+          loginSuccess: false,
+          showAlertLoginFail: true,
+        })
+      }
     })
       .catch(() => {
-
+        this.setState({showAlertLoginFail: true,})
       })
       .finally(() => {
 
       })
   };
 
+  renderAlert = () => {
+    const {showAlertLoginFail} = this.state;
+    if (showAlertLoginFail) {
+      return Alert.alert(
+        'Alert',
+        'Login fail',
+        [
+          {
+            text: 'OK', onPress: () => {
+              this.setState({showAlertLoginFail: false})
+            }
+          },
+        ],
+      )
+    }
+    return null;
+  }
+
   render() {
+    const {userName, password, userAuth} = this.state;
+    console.log({userAuth});
     return (
-      <View style={styles.container}>
-        <Text>{this.state.value}</Text>
-        <Input
-          placeholder='Email'
-          leftIcon={{ type: 'font-awesome', name: 'chevron-left' }}
-        />
+      <View style={{
+        flex: 1,
+        backgroundColor: themes.backgroundColor,
+        paddingTop: 20,
+      }}>
+        {
+          this.renderAlert()
+        }
 
-        <Input
-          placeholder='Password'
-          leftIcon={
-            <Icon
-              name='user'
-              size={24}
-              color='black'
+        <View
+          style={{
+            alignItems: "center"
+          }}
+        >
+          <Image
+            source={require('../assets/icons/64.png')}
+          />
+
+        </View>
+        {userAuth.userName ?
+          <View
+            style={
+              {
+                padding: 40,
+                alignItems: "center"
+              }
+            }
+          >
+            <Text
+              style={{color: '#fff', fontSize: 20, marginBottom: 20}}
+            >
+              Hello: {userAuth.userName}</Text>
+
+            <Button
+              title="Logout"
+              onPress={this.handleLogout}
+              buttonStyle={{
+                width: 100
+              }}
             />
-          }
-        />
+          </View>
+          :
+          <View
+            style={
+              {
+                padding: 40
+              }
+            }
+          >
+            <Input
+              placeholder='Username'
+              placeholderTextColor={'#fff'}
+              inputStyle={{color: '#fff'}}
+              value={userName}
+              onChangeText={text => this.setState({userName: text})}
+            />
 
-        <Button
-          title="Login Button"
-          onPress={this.handleLogin}
-        />
+            <Input
+              placeholder='Password'
+              placeholderTextColor={'#fff'}
+              inputStyle={{color: '#fff'}}
+              value={password}
+              secureTextEntry={true}
+              type={'password'}
+              visible-password
+              onChangeText={text => this.setState({password: text})}
+              containerStyle={
+                {
+                  marginBottom: 20
+                }
+              }
+            />
+
+            <Button
+              title="Login"
+              onPress={this.handleLogin}
+            />
+          </View>
+        }
       </View>
     );
   }
@@ -112,92 +213,3 @@ LoginScreen.navigationOptions = {
 };
 
 export default LoginScreen;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  developmentModeText: {
-    marginBottom: 20,
-    color: 'rgba(0,0,0,0.4)',
-    fontSize: 14,
-    lineHeight: 19,
-    textAlign: 'center',
-  },
-  contentContainer: {
-    paddingTop: 30,
-  },
-  welcomeContainer: {
-    alignItems: 'center',
-    marginTop: 10,
-    marginBottom: 20,
-  },
-  welcomeImage: {
-    width: 100,
-    height: 80,
-    resizeMode: 'contain',
-    marginTop: 3,
-    marginLeft: -10,
-  },
-  getStartedContainer: {
-    alignItems: 'center',
-    marginHorizontal: 50,
-  },
-  homeScreenFilename: {
-    marginVertical: 7,
-  },
-  codeHighlightText: {
-    color: 'rgba(96,100,109, 0.8)',
-  },
-  codeHighlightContainer: {
-    backgroundColor: 'rgba(0,0,0,0.05)',
-    borderRadius: 3,
-    paddingHorizontal: 4,
-  },
-  getStartedText: {
-    fontSize: 17,
-    color: 'rgba(96,100,109, 1)',
-    lineHeight: 24,
-    textAlign: 'center',
-  },
-  tabBarInfoContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    ...Platform.select({
-      ios: {
-        shadowColor: 'black',
-        shadowOffset: { width: 0, height: -3 },
-        shadowOpacity: 0.1,
-        shadowRadius: 3,
-      },
-      android: {
-        elevation: 20,
-      },
-    }),
-    alignItems: 'center',
-    backgroundColor: '#fbfbfb',
-    paddingVertical: 20,
-  },
-  tabBarInfoText: {
-    fontSize: 17,
-    color: 'rgba(96,100,109, 1)',
-    textAlign: 'center',
-  },
-  navigationFilename: {
-    marginTop: 5,
-  },
-  helpContainer: {
-    marginTop: 15,
-    alignItems: 'center',
-  },
-  helpLink: {
-    paddingVertical: 15,
-  },
-  helpLinkText: {
-    fontSize: 14,
-    color: '#2e78b7',
-  },
-});

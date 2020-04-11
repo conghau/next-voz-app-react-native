@@ -1,10 +1,11 @@
 import * as React from 'react';
 import times from 'lodash/times';
-import { Button } from "react-native-elements";
-import { ScrollView, View } from "react-native";
+import {Button} from "react-native-elements";
+import {ScrollView, View} from "react-native";
+import {themes} from "../../themes";
 
-export default function Pagination({ totalPage = 0, onClick, currentPage = 1, hasBottomNavigation, onClickReply, isAuthen }) {
-  const _total = totalPage
+export default function Pagination({totalPage = 0, onClick, currentPage = 1, hasBottomNavigation, onClickReply, isAuthen}) {
+  const _total = totalPage;
   return (
     <View
       style={{
@@ -24,29 +25,34 @@ export default function Pagination({ totalPage = 0, onClick, currentPage = 1, ha
           borderTopColor: 'rgba(76,76,76,0.62)'
         }}
       >
-        <Button
-          type="clear"
-          icon={
-            {
-              name: "reply",
-              type: 'material',
-            }
-          }
-          disabled={!isAuthen}
-          onPress={() => onClickReply(true)}
-        />
+
         {
-          totalPage > 1 && <Button
+          isAuthen && <Button
+            type="clear"
             icon={
               {
-                name: "first-page",
+                name: "reply",
                 type: 'material',
+                color: themes.pagination.icon.color
+
               }
             }
-            type="clear"
-            onPress={() => onClick(1)}
+            disabled={!isAuthen}
+            onPress={() => onClickReply(true)}
           />
         }
+        <Button
+          icon={
+            {
+              name: "first-page",
+              type: 'material',
+              color: themes.pagination.icon.color
+
+            }
+          }
+          type="clear"
+          onPress={() => onClick(1)}
+        />
         <ScrollView
           horizontal={true}
           style={{}}
@@ -79,21 +85,21 @@ export default function Pagination({ totalPage = 0, onClick, currentPage = 1, ha
           }
 
         </ScrollView>
-        {
-          totalPage > 1 && <Button
-            icon={{
-              name: 'last-page'
-            }}
-            type={'clear'}
-            onPress={() => onClick(totalPage)}
-          />
-        }
+        <Button
+          icon={{
+            name: 'last-page',
+            color: themes.pagination.icon.color
+          }}
+          type={'clear'}
+          onPress={() => onClick(totalPage)}
+        />
         <Button
           type="clear"
           icon={
             {
               name: "share",
               type: 'material',
+              color: themes.pagination.icon.color
             }
           }
         />

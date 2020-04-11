@@ -4,7 +4,7 @@ import { getCookiesStr } from "./storage";
 
 const configs = {
   // baseURL: `http://localhost:5000/api`,
-  baseURL: __DEV__ ? `http://192.168.1.83:5000/api` : `http://ec2-13-229-131-82.ap-southeast-1.compute.amazonaws.com:5000/api`,
+  baseURL: __DEV__ ? `http://192.168.1.230:5000/api` : `http://ec2-13-229-131-82.ap-southeast-1.compute.amazonaws.com:5000/api`,
   timeout: 10000,
 };
 

@@ -15,39 +15,26 @@ export default function BottomTabNavigator({ navigation, route }) {
   // https://reactnavigation.org/docs/en/screen-options-resolution.html
   navigation.setOptions({ headerTitle: getHeaderTitle(route) });
 
-  navigation.setOptions({
-    tabBarComponent: props =>{
-      return(
-
-        <React.Fragment>
-          <TabBarComponent {...props} />
-          <Image style={styles.fakeTabBackground}/>
-        </React.Fragment>
-
-      )
-    }
-  })
-
   return (
     <BottomTab.Navigator initialRouteName={INITIAL_ROUTE_NAME} >
-      <BottomTab.Screen
-        name="ThreadDetailScreenT"
-        options={{
-          title: 'Forums',
-          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused}
-                                                   name="md-menu"/>,
-        }}
-      >
-        {
-          props => <ThreadDetailScreen
-            {...props}
-            route={{ params: { slug:
-                  '/t/covid-19-my-8-444-ca-chet-310-233-ca-nhiem-kinh-te-chiu-don.19479/',
-                page:2,
-                title: 'Một mình một chợ’, Thái Lan đẩy giá xuất khẩu gạo lên cao'} }}
-          />
-        }
-      </BottomTab.Screen>
+      {/*<BottomTab.Screen*/}
+      {/*  name="ThreadDetailScreenT"*/}
+      {/*  options={{*/}
+      {/*    title: 'Forums',*/}
+      {/*    tabBarIcon: ({ focused }) => <TabBarIcon focused={focused}*/}
+      {/*                                             name="md-menu"/>,*/}
+      {/*  }}*/}
+      {/*>*/}
+      {/*  {*/}
+      {/*    props => <ThreadDetailScreen*/}
+      {/*      {...props}*/}
+      {/*      route={{ params: { slug:*/}
+      {/*            '/t/covid-19-my-8-444-ca-chet-310-233-ca-nhiem-kinh-te-chiu-don.19479/',*/}
+      {/*          page:2,*/}
+      {/*          title: 'Một mình một chợ’, Thái Lan đẩy giá xuất khẩu gạo lên cao'} }}*/}
+      {/*    />*/}
+      {/*  }*/}
+      {/*</BottomTab.Screen>*/}
 
       <BottomTab.Screen
         name="Forums"
@@ -82,7 +69,7 @@ export default function BottomTabNavigator({ navigation, route }) {
         options={{
           title: 'Login',
           tabBarIcon: ({ focused }) => <TabBarIcon focused={focused}
-                                                   name="md-menu"/>,
+                                                   name="md-finger-print"/>,
         }}
       />
 
@@ -120,5 +107,7 @@ function getHeaderTitle(route) {
       return 'Cài đặt';
     case 'Forums':
       return 'Forums';
+    case 'Login':
+      return 'Login';
   }
 }

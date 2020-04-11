@@ -6,7 +6,6 @@ import { Button, Input } from 'react-native-elements';
 
 export default function ReplyForm({onClose, onSend}) {
   const [message, setMessage] = useState('');
-  console.log(message);
   return (
     <View style={{
       height:70,
@@ -26,6 +25,7 @@ export default function ReplyForm({onClose, onSend}) {
             onChangeText={text => setMessage(text)}
             value={message}
             containerStyle={{ borderStyle: 'solid', borderWidth: 1, borderRadius: 20 }}
+            placeholder={'Quick reply'}
           />
         </View>
         <Button

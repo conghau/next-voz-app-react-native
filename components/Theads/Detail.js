@@ -10,7 +10,7 @@ import {
 import Pagination from "../Pagination";
 import Spinner from "react-native-loading-spinner-overlay";
 import HTML from 'react-native-render-html';
-import { Button, Divider, ListItem } from "react-native-elements";
+import {Button, Divider, ListItem} from "react-native-elements";
 import get from 'lodash/get';
 import ReplyForm from "../ReplyForm";
 import {
@@ -18,7 +18,8 @@ import {
   getTheadDetailXfToken,
   postReply
 } from "../../services";
-import { themes } from "../../themes";
+import {themes} from "../../themes";
+import {getUserAuth} from "../../utils/storage";
 
 function wait(timeout) {
   return new Promise(resolve => {
@@ -46,63 +47,67 @@ class ThreadDetail extends React.Component {
   async componentDidMount() {
     const threadId = get(this.props, 'route.params.slug', '');
 
-    await this.fetchData({ currentPage: 1 });
-    getTheadDetailXfToken({ threadId })
-      .then(res => res.data)
-      .then(res => {
-        this.setState({
-          xfToken: res.xfToken || '',
-          clientCookie: res.clientCookie || '',
+    await this.fetchData({currentPage: 1});
+
+    const userAuth = await getUserAuth();
+    if (userAuth.userName) {
+      getTheadDetailXfToken({threadId})
+        .then(res => res.data)
+        .then(res => {
+          this.setState({
+            xfToken: res.xfToken || '',
+            clientCookie: res.clientCookie || '',
+          })
         })
-      })
-      .catch((e) => {
-      })
-      .finally(
-        () => {
-        }
-      );
+        .catch((e) => {
+        })
+        .finally(
+          () => {
+          }
+        );
+    }
   }
 
   setErrors = () => {
-    this.setState({ error: true })
+    this.setState({error: true})
   }
   setFetching = (data) => {
-    this.setState({ fetching: data });
+    this.setState({fetching: data});
 
   }
   setThreadList = (data) => {
-    this.setState({ threadList: data })
+    this.setState({threadList: data})
   }
   setCurrentPage = (page) => {
-    this.setState({ currentPage: page });
+    this.setState({currentPage: page});
   }
   setTyping = (data) => {
-    this.setState({ typing: data });
+    this.setState({typing: data});
 
   }
   setRefreshing = (data) => {
-    this.setState({ refreshing: data });
+    this.setState({refreshing: data});
 
   }
   setNumberOfPages = (data) => {
-    this.setState({ numberOfPages: data });
+    this.setState({numberOfPages: data});
 
   }
 
   handleClickPage = (page) => {
     this.setCurrentPage(page);
-    this.fetchData({ currentPage: page });
+    this.fetchData({currentPage: page});
   };
 
   onRefresh = async () => {
-    const { currentPage } = this.state;
+    const {currentPage} = this.state;
 
     this.setRefreshing(true);
-    await this.fetchData({ currentPage });
+    await this.fetchData({currentPage});
   };
 
   sendReply = (data) => {
-    const { xfToken, clientCookie, currentPage, numberOfPages } = this.state;
+    const {xfToken, clientCookie, currentPage, numberOfPages} = this.state;
     const threadId = get(this.props, 'route.params.slug', '');
     return postReply(Object.assign({}, data, {
       requestUri: threadId,
@@ -134,13 +139,13 @@ class ThreadDetail extends React.Component {
     // );
   };
 
-  fetchData = ({ currentPage }) => {
+  fetchData = ({currentPage}) => {
     const threadId = get(this.props, 'route.params.slug', '');
     console.log(threadId);
-    const { currentPage: _currentPage } = this.state;
+    const {currentPage: _currentPage} = this.state;
 
     this.setFetching(true);
-    getTheadDetail({ threadId, currentPage: currentPage || _currentPage })
+    getTheadDetail({threadId, currentPage: currentPage || _currentPage})
       .then(res => res.data)
       .then(res => {
         this.setState({
@@ -189,9 +194,9 @@ class ThreadDetail extends React.Component {
         />
         {
           error &&
-            <View>
-              <Text>ERR</Text>
-            </View>
+          <View>
+            <Text>ERR</Text>
+          </View>
         }
         {
           !error &&
@@ -229,7 +234,7 @@ class ThreadDetail extends React.Component {
                   textAlign: 'center',
                   fontWeight: 'bold',
                 }}>{title}</Text>
-                <Divider style={{ backgroundColor: '#15191d', height: 1 }}/>
+                <Divider style={{backgroundColor: '#15191d', height: 1}}/>
 
               </View>
               {threadList.map((item, index) => {
@@ -237,9 +242,9 @@ class ThreadDetail extends React.Component {
                   content, avatar_text, avatar, userName, userTitle, userLink,
                   postCount, postLink, postTime
                 } = item;
-                let leftAvatar = { title: avatar_text };
+                let leftAvatar = {title: avatar_text};
                 if (avatar) {
-                  leftAvatar = { ...leftAvatar, source: { uri: avatar } }
+                  leftAvatar = {...leftAvatar, source: {uri: avatar}}
                 }
 
 
@@ -277,15 +282,15 @@ class ThreadDetail extends React.Component {
                           backgroundColor: '#15191d'
                         }}
                         rightTitle={postCount}
-                        rightTitleStyle={{ fontSize: 12, color: '#f87439' }}
+                        rightTitleStyle={{fontSize: 12, color: '#f87439'}}
                         rightSubtitle={postTime}
-                        rightSubtitleStyle={{ fontSize: 10, color: '#f87439' }}
+                        rightSubtitleStyle={{fontSize: 10, color: '#f87439'}}
 
                       />
                       <HTML
                         html={content}
-                        baseFontStyle={{ fontSize: 18 }}
-                        containerStyle={{ color: '#fff' }}
+                        baseFontStyle={{fontSize: 18}}
+                        containerStyle={{color: '#fff'}}
                         tagsStyles={{
                           // i: {
                           //   textAlign: 'center',
@@ -376,7 +381,7 @@ const PostFooter = () => {
   return (
     <ListItem
       topDivider={true}
-      style={{ marginTop: 10 }}
+      style={{marginTop: 10}}
       containerStyle={{
         paddingLeft: 0,
         paddingRight: 0,
@@ -394,53 +399,59 @@ const PostFooter = () => {
               size: 10,
               name: "announcement",
               type: 'material',
+              color: themes.theadFooter.icon.color
             }
           }
-          titleStyle={{ fontSize: 10 }}
+          titleStyle={{
+            fontSize: 10,
+            color: themes.theadFooter.icon.color
+          }}
 
         />
       }
       rightElement={
         <>
           <Button
-            titleStyle={{ fontSize: 10 }}
+            titleStyle={{fontSize: 10, color: themes.theadFooter.icon.color}}
             type="clear"
             icon={
               {
                 size: 10,
                 name: "favorite-border",
                 type: 'material',
+                color: themes.theadFooter.icon.color
               }
             }
             title="Ưng"
           />
           <Button
-            titleStyle={{ fontSize: 10 }}
+            titleStyle={{fontSize: 10, color: themes.theadFooter.icon.color}}
             type="clear"
             icon={
               {
                 size: 10,
                 name: "add",
                 type: 'material',
+                color: themes.theadFooter.icon.color
               }
             }
             title="Quote"
           />
           <Button
-            titleStyle={{ fontSize: 10 }}
+            titleStyle={{fontSize: 10, color: themes.theadFooter.icon.color}}
             type="clear"
             icon={
               {
                 size: 10,
                 name: "reply",
                 type: 'material',
+                color: themes.theadFooter.icon.color
               }
             }
             title="Reply"
           />
         </>
       }
-
     />
   )
 };
