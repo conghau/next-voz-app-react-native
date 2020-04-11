@@ -5,6 +5,7 @@ import get from "lodash/get";
 
 export default function ThreadDetailScreen(props) {
   const title = get(props, 'route.params.title', ``);
+  const page = get(props, 'route.params.page', 1);
 
   props.navigation.setOptions({
       headerTitle:
@@ -32,7 +33,7 @@ export default function ThreadDetailScreen(props) {
 
   return (
     <View style={styles.container}>
-      <ThreadDetail {...props}/>
+      <ThreadDetail {...props} title={title} page={page}/>
     </View>
   );
 }

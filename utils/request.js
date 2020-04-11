@@ -1,10 +1,12 @@
-import axios from 'axios'
+import axios from 'axios';
+import { getCookiesStr } from "./storage";
+
 
 const configs = {
   // baseURL: `http://localhost:5000/api`,
-  baseURL: __DEV__ ? `http://192.168.1.83:5000/api` : `http://192.168.1.83:5000/api`,
-  timeout: 100000,
-}
+  baseURL: __DEV__ ? `http://192.168.1.83:5000/api` : `http://ec2-13-229-131-82.ap-southeast-1.compute.amazonaws.com:5000/api`,
+  timeout: 10000,
+};
 
 
 export const requestWithAuth = () => {
@@ -15,6 +17,13 @@ export const requestWithAuth = () => {
       'Access-Control-Allow-Origin': '*',
     },
   });
+
+  axiosInstance.interceptors.request.use(async (config) => {
+    config.params = config.params || {};
+    config.params['clientCookies'] = await getCookiesStr();
+    return config;
+  });
+
   axiosInstance.interceptors.response.use(
     response => response,
     error => {
@@ -27,9 +36,9 @@ export const requestWithAuth = () => {
 
       return Promise.reject(error)
     }
-  )
+  );
   return axiosInstance
-}
+};
 
 
 export const buildQueryString = (params, isSkipUndefined = true) => {

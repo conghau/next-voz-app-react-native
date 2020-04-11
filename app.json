@@ -11,11 +11,10 @@
     ],
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/icons/144.png",
     "scheme": "myapp",
     "splash": {
-      "image": "./assets/images/splash.png",
-      "resizeMode": "contain",
+      "image": "./assets/icons/256.png",
       "backgroundColor": "#ffffff"
     },
     "updates": {
@@ -25,8 +24,16 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.tch.nextvoz",
+      "buildNumber": "1.0.0"
+    },
+    "android": {
+      "package": "com.tch.nextvoz",
+      "versionCode": 1,
+      "permissions" : []
     },
     "description": ""
+
   }
 }

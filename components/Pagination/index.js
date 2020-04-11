@@ -3,13 +3,14 @@ import times from 'lodash/times';
 import { Button } from "react-native-elements";
 import { ScrollView, View } from "react-native";
 
-export default function Pagination({ totalPage = 0, onClick, currentPage = 1, hasBottomNavigation }) {
-  const _total = totalPage - 1
+export default function Pagination({ totalPage = 0, onClick, currentPage = 1, hasBottomNavigation, onClickReply, isAuthen }) {
+  const _total = totalPage
   return (
     <View
       style={{
-        minHeight: hasBottomNavigation ? 0 : 80,
+        minHeight: hasBottomNavigation ? 0 : 70,
         display: 'flex',
+        backgroundColor: '#15191d'
 
       }}
     >
@@ -31,6 +32,8 @@ export default function Pagination({ totalPage = 0, onClick, currentPage = 1, ha
               type: 'material',
             }
           }
+          disabled={!isAuthen}
+          onPress={() => onClickReply(true)}
         />
         {
           totalPage > 1 && <Button

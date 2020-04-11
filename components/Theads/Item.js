@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { ListItem } from "react-native-elements";
-import {Text, View} from "react-native";
 
 export default function ThreadItem({ data, navigation }) {
   const {isSticky, view, reply, username} = data;

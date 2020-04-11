@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { Platform, StatusBar, StyleSheet, View, Text } from 'react-native';
+import { Platform, StatusBar, StyleSheet, View } from 'react-native';
 import { SplashScreen, } from 'expo';
 import * as Font from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
-import { NavigationContainer } from '@react-navigation/native';
+import { DarkTheme,DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
 import BottomTabNavigator from './navigation/BottomTabNavigator';
@@ -13,12 +13,13 @@ import ThreadDetailScreen from "./screens/TheadScreen";
 
 const Stack = createStackNavigator();
 
-function LogoTitle(props) {
-  console.log(props);
-  return (
-    <Text>ABV</Text>
-  );
-}
+const MyTheme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    primary: 'rgb(255, 45, 85)',
+  },
+};
 
 export default function App(props) {
   const [isLoadingComplete, setLoadingComplete] = React.useState(false);
@@ -58,8 +59,11 @@ export default function App(props) {
     return (
       <View style={styles.container}>
         {Platform.OS === 'ios' && <StatusBar barStyle="default"/>}
-        <NavigationContainer ref={containerRef}
-                             initialState={initialNavigationState}>
+        <NavigationContainer
+          ref={containerRef}
+          initialState={initialNavigationState}
+          theme={DarkTheme}
+        >
           <Stack.Navigator>
             <Stack.Screen name="Root" component={BottomTabNavigator}/>
             <Stack.Screen

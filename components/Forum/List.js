@@ -278,7 +278,7 @@ const GroupList = ({ data, navigation, ...rest }) => {
               <ListItem
                 key={index}
                 title={item.title}
-                subtitle={'8 viewing'}
+                // subtitle={'8 viewing'}
                 bottomDivider
                 rightIcon={{ name: 'star-border' }}
                 onPress={() => {
@@ -296,15 +296,6 @@ const GroupList = ({ data, navigation, ...rest }) => {
     </View>
   )
 };
-
-const Item = ({ data }) => {
-  const { title, id, child = [] } = data || {};
-  return (
-    <View>
-      <Text>{title}-{id}</Text>
-    </View>
-  )
-}
 
 ForumList.navigationOptions = {
   header: null,

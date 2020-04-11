@@ -4,7 +4,6 @@ import * as WebBrowser from 'expo-web-browser';
 import ThreadList from "../components/Theads/List";
 
 export default function ForumChildScreen(props) {
-  console.log(props);
   return (
     <View style={styles.container}>
       <ThreadList {...props}/>
