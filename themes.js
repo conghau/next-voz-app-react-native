@@ -1,5 +1,6 @@
 
 export const themes = {
+  background: 'rgb(1, 1, 1)',
   backgroundColor: '#15191d',
   headerTitle: {
     backgroundColor: '#15191d',

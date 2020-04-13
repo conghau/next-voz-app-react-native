@@ -1,113 +1,172 @@
 import * as React from 'react';
-import { useEffect, useState } from 'react';
-import { RefreshControl, ScrollView, View } from 'react-native';
+import {FlatList, RefreshControl, View} from 'react-native';
 import ThreadItem from "./Item";
-import { requestWithAuth } from "../../utils/request";
+import {requestWithAuth} from "../../utils/request";
 import Pagination from "../Pagination";
 import Spinner from "react-native-loading-spinner-overlay";
-import { useNavigation } from '@react-navigation/native';
+import {themes} from "../../themes";
+import get from "lodash/get";
 
-function wait(timeout) {
-  return new Promise(resolve => {
-    setTimeout(resolve, timeout);
-  });
-}
+class ThreadList extends React.Component {
 
+  constructor(props) {
+    super(props);
+    this.state = {
+      errors: false,
+      fetching: false,
+      threadList: [],
+      xfToken: '',
+      numberOfPages: 0,
+      currentPage: props.page || 1,
+      typing: false,
+      refreshing: false,
+    };
+  }
 
-export default function ThreadList(props) {
+  async componentDidMount() {
+    await this.fetchData({currentPage: 1});
+  }
 
-  const [errors, setErrors] = useState(false);
-  const [fetching, setFetching] = useState(false);
-  const [threadList, setThreadList] = useState([]);
-  const [numberOfPages, setNumberOfPages] = useState(0);
-  const [currentPage, setCurrentPage] = useState(1);
+  fetchData = async ({currentPage}) => {
+    const forumId = get(this.props, 'route.params.id', '');
 
-  const [refreshing, setRefreshing] = useState(false);
+    const {currentPage: _currentPage} = this.state;
 
-  const onRefresh = React.useCallback(async () => {
-    setRefreshing(true);
-    await fetchData();
-    setRefreshing(false);
-  }, [refreshing]);
+    const __currentPage = currentPage || _currentPage;
 
-  const navigation = useNavigation();
-
-
-  const forumId = props.route.params.id;
-
-  async function fetchData() {
-    console.log('fetchData');
-    setFetching(true);
-    return requestWithAuth().get(`/voz/threads?forumId=${forumId}&page=${currentPage}`)
+    this.setFetching(true);
+    return requestWithAuth().get(`/voz/threads?forumId=${forumId}&page=${__currentPage}`)
       .then(res => res.data)
       .then(res => {
-        setThreadList(res.datas || []);
-        setNumberOfPages(res.numberOfPages || 0);
+        this.setState({
+          threadList: res.datas || [],
+          numberOfPages: res.numberOfPages || 0,
+          currentPage: __currentPage,
+          error: false,
+        })
       })
-      .catch(() => setErrors(true))
+      .catch(() => this.setErrors(true))
       .finally(() => {
-        setFetching(false);
+        this.setState({
+          fetching: false,
+          refreshing: false,
+        })
       });
   }
 
-  useEffect(() => {
-    fetchData()
-  }, [currentPage]);
+  onRefresh = async () => {
+    const {currentPage} = this.state;
 
-  const keyExtractor = (item, index) => index.toString();
+    this.setRefreshing(true);
+    await this.fetchData({currentPage});
+  };
 
-  const renderItem = ({ item }) => (
-    <ThreadItem
-      // key={index}
-      data={item}
-    />
-  );
+  setErrors = () => {
+    this.setState({error: true})
+  }
+  setFetching = (data) => {
+    this.setState({fetching: data});
 
-  // return (
-  //   <FlatList
-  //     keyExtractor={keyExtractor}
-  //     data={datas}
-  //     renderItem={renderItem}
-  //   />
-  // )
+  }
+  setRefreshing = (data) => {
+    this.setState({refreshing: data});
 
-  const {hasBottomNavigation} = props;
+  }
 
-  return (
-    <View style={
-      {
-        flex: 1,
-        backgroundColor: '#fff',
-      }
-    }>
-      <Spinner
-        visible={fetching}
+  handleClickPage = (page) => {
+    this.setState({
+      fetching: true,
+      currentPage: page,
+    })
+    this.fetchData({currentPage: page});
+    if (this.scroll) {
+      // this.scroll.scrollTo({y: 0, x: 0, animated: false})
+      this.scroll.scrollToOffset({offset: 0, animated: false})
+    }
+  };
+
+  keyExtractor = (item, index) => index.toString()
+
+  renderItem = ({item}) => {
+    return (
+      <ThreadItem
+        data={item}
+        navigation={this.props.navigation}
       />
-      <ScrollView
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>
+    )
+  }
+
+  render() {
+    const {
+      numberOfPages,
+      currentPage,
+      fetching,
+      refreshing,
+      threadList,
+    } = this.state;
+
+    return (
+      <View style={
+        {
+          flex: 1,
+          backgroundColor: themes.backgroundColor,
         }
-      >
-        {threadList.map((item, index) => {
-          return (
-            <ThreadItem
-              key={index}
-              data={item}
-              navigation={navigation}
-            />
-          )
-        })}
-      </ScrollView>
-      <Pagination
-        totalPage={numberOfPages}
-        onClick={setCurrentPage}
-        currentPage={currentPage}
-        hasBottomNavigation={hasBottomNavigation}
-      />
-    </View>
-  );
+      }>
+        <Spinner
+          visible={fetching}
+        />
+        {/*<ScrollView*/}
+        {/*  refreshControl={*/}
+        {/*    <RefreshControl*/}
+        {/*      refreshing={refreshing}*/}
+        {/*      onRefresh={this.onRefresh}*/}
+        {/*      style={{*/}
+        {/*        tintColor: '#fff',*/}
+        {/*        colors: ['#fff']*/}
+        {/*      }}*/}
+        {/*    />*/}
+        {/*  }*/}
+        {/*  ref={ref => {*/}
+        {/*    this.scroll = ref;*/}
+        {/*  }}*/}
+        {/*>*/}
+          <FlatList
+            keyExtractor={this.keyExtractor}
+            data={threadList}
+            renderItem={this.renderItem}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={this.onRefresh}
+                style={{
+                  tintColor: '#fff',
+                  colors: ['#fff']
+                }}
+              />
+            }
+            ref={ref => {
+              this.scroll = ref;
+            }}
+          />
+          {/*{threadList.map((item, index) => {*/}
+          {/*  return (*/}
+          {/*    <ThreadItem*/}
+          {/*      key={index}*/}
+          {/*      data={item}*/}
+          {/*      navigation={this.props.navigation}*/}
+          {/*    />*/}
+          {/*  )*/}
+          {/*})}*/}
+        {/*</ScrollView>*/}
+        <Pagination
+          totalPage={numberOfPages}
+          onClick={this.handleClickPage}
+          currentPage={currentPage}
+          hasBottomNavigation={this.props.hasBottomNavigation}
+        />
+      </View>
+    );
+  }
 }
 
-ThreadList.navigationOptions = {
-  header: null,
-};
+export default ThreadList;

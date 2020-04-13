@@ -1,22 +1,23 @@
 import * as React from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import TabBarIcon from '../components/TabBarIcon';
 import ForumChildScreen from "../screens/ForumChild";
 import Forums from "../screens/Forums";
 import LoginScreen from "../screens/LoginScreen";
 import ThreadDetailScreen from "../screens/TheadScreen";
+import FavorForumScreen from "../screens/FavorForumScreen";
 
 const BottomTab = createBottomTabNavigator();
 const INITIAL_ROUTE_NAME = 'Home';
 
-export default function BottomTabNavigator({ navigation, route }) {
+export default function BottomTabNavigator({navigation, route}) {
   // Set the header title on the parent stack navigator depending on the
   // currently active tab. Learn more in the documentation:
   // https://reactnavigation.org/docs/en/screen-options-resolution.html
-  navigation.setOptions({ headerTitle: getHeaderTitle(route) });
+  navigation.setOptions({headerTitle: getHeaderTitle(route)});
 
   return (
-    <BottomTab.Navigator initialRouteName={INITIAL_ROUTE_NAME} >
+    <BottomTab.Navigator initialRouteName={INITIAL_ROUTE_NAME}>
       {/*<BottomTab.Screen*/}
       {/*  name="ThreadDetailScreenT"*/}
       {/*  options={{*/}
@@ -41,8 +42,8 @@ export default function BottomTabNavigator({ navigation, route }) {
         component={Forums}
         options={{
           title: 'Forums',
-          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused}
-                                                   name="md-menu"/>,
+          tabBarIcon: ({focused}) => <TabBarIcon focused={focused}
+                                                 name="md-menu"/>,
         }}
       />
 
@@ -50,15 +51,50 @@ export default function BottomTabNavigator({ navigation, route }) {
         name="News"
         options={{
           title: 'Điểm báo',
-          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused}
-                                                   name="md-basketball"/>,
+          tabBarIcon: ({focused}) => <TabBarIcon focused={focused}
+                                                 name="md-basketball"/>,
         }}
       >
         {
           props => <ForumChildScreen
             {...props}
-            route={{ params: { id: 33 } }}
+            route={{params: {id: 33}}}
             hasBottomNavigation={true}
+          />
+        }
+      </BottomTab.Screen>
+
+      <BottomTab.Screen
+        name="f17"
+        options={{
+          title: 'F17',
+          tabBarIcon: ({focused}) =>
+            <TabBarIcon focused={focused}
+                        name="md-happy"
+            />,
+        }}
+      >
+        {
+          props => <ForumChildScreen
+            {...props}
+            route={{params: {id: 17}}}
+            hasBottomNavigation={true}
+          />
+        }
+      </BottomTab.Screen>
+      <BottomTab.Screen
+        name="favor"
+        options={{
+          title: 'Favor',
+          tabBarIcon: ({focused}) =>
+            <TabBarIcon focused={focused}
+                        name="md-heart-empty"
+            />,
+        }}
+      >
+        {
+          props => <FavorForumScreen
+            {...props}
           />
         }
       </BottomTab.Screen>
@@ -68,8 +104,8 @@ export default function BottomTabNavigator({ navigation, route }) {
         component={LoginScreen}
         options={{
           title: 'Login',
-          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused}
-                                                   name="md-finger-print"/>,
+          tabBarIcon: ({focused}) => <TabBarIcon focused={focused}
+                                                 name="md-finger-print"/>,
         }}
       />
 
@@ -109,5 +145,9 @@ function getHeaderTitle(route) {
       return 'Forums';
     case 'Login':
       return 'Login';
+    case 'f17':
+      return 'F17';
+    case 'favor':
+      return 'Favorite';
   }
 }

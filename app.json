@@ -9,7 +9,7 @@
       "android",
       "web"
     ],
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/icons/144.png",
     "scheme": "myapp",
@@ -30,10 +30,9 @@
     },
     "android": {
       "package": "com.tch.nextvoz",
-      "versionCode": 1,
-      "permissions" : []
+      "versionCode": 2.1,
+      "permissions": []
     },
     "description": ""
-
   }
 }

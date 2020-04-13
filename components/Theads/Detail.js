@@ -1,6 +1,7 @@
 import * as React from 'react';
 import {
   KeyboardAvoidingView,
+  Linking,
   Platform,
   RefreshControl,
   ScrollView,
@@ -13,20 +14,9 @@ import HTML from 'react-native-render-html';
 import {Button, Divider, ListItem} from "react-native-elements";
 import get from 'lodash/get';
 import ReplyForm from "../ReplyForm";
-import {
-  getTheadDetail,
-  getTheadDetailXfToken,
-  postReply
-} from "../../services";
+import {getTheadDetail, getTheadDetailXfToken, postReply} from "../../services";
 import {themes} from "../../themes";
 import {getUserAuth} from "../../utils/storage";
-
-function wait(timeout) {
-  return new Promise(resolve => {
-    setTimeout(resolve, timeout);
-  });
-}
-
 
 class ThreadDetail extends React.Component {
   constructor(props) {
@@ -97,6 +87,9 @@ class ThreadDetail extends React.Component {
   handleClickPage = (page) => {
     this.setCurrentPage(page);
     this.fetchData({currentPage: page});
+    if (this.scroll) {
+      this.scroll.scrollTo({y: 0, x: 0, animated: false})
+    }
   };
 
   onRefresh = async () => {
@@ -170,6 +163,142 @@ class ThreadDetail extends React.Component {
 
   };
 
+  keyExtractor = (item, index) => index.toString()
+
+  renderItem = ({item}) => {
+    const {
+      content, avatar_text, avatar, userName, userTitle, userLink,
+      postCount, postLink, postTime
+    } = item;
+    let leftAvatar = {title: avatar_text};
+    if (avatar) {
+      leftAvatar = {...leftAvatar, source: {uri: avatar}}
+    }
+
+
+    return (
+      <>
+        <View
+          style={{
+            padding: 10,
+            backgroundColor: '#15191d'
+
+          }}>
+          <ListItem
+            leftAvatar={leftAvatar}
+            title={userName}
+            titleStyle={{
+              color: '#f87439'
+            }}
+            subtitle={userTitle}
+
+            subtitleStyle={{
+              fontSize: 10,
+              color: '#f87439'
+            }}
+            bottomDivider={true}
+            style={{
+              marginBottom: 10,
+              backgroundColor: '#15191d'
+
+            }}
+            containerStyle={{
+              paddingLeft: 0,
+              paddingBottom: 10,
+              paddingTop: 10,
+              backgroundColor: '#15191d'
+            }}
+            rightTitle={postCount}
+            rightTitleStyle={{fontSize: 12, color: '#f87439'}}
+            rightSubtitle={postTime}
+            rightSubtitleStyle={{fontSize: 10, color: '#f87439'}}
+
+          />
+          {/*{Dimensions.get('window').width}*/}
+          <HTML
+            html={content}
+            onLinkPress={(evt, href) => {
+              Linking.openURL(href);
+            }}
+            baseFontStyle={{fontSize: 18}}
+            containerStyle={{color: '#fff'}}
+            tagsStyles={{
+              // i: {
+              //   textAlign: 'center',
+              //   fontStyle: 'italic',
+              //   color: 'grey'
+              // }
+              img: {
+                maxWidth: '100%',
+                height: 'auto'
+              },
+              p: {
+                color: '#fff'
+              },
+              span: {
+                color: '#fff'
+              },
+              div: {
+                color: '#fff'
+              },
+              iframe: {
+                maxWidth: '98%'
+              }
+            }}
+            staticContentMaxWidth={100}
+            classesStyles={{
+              'last-paragraph': {
+                textAlign: 'right',
+                color: 'teal',
+                fontWeight: '800'
+              },
+              'bbCodeBlock': {
+                marginTop: 5,
+                marginBottom: 10,
+                background: '#e2e3e5',
+                borderColor: '#d3d5d7',
+                borderWidth: 1,
+                borderStyle: 'solid',
+                borderLeftWidth: 4,
+                borderLeftStyle: 'solid',
+                borderLeftColor: '#ff944d',
+                padding: 5,
+                color: '#fff'
+              },
+              'bbImage': {
+                maxWidth: '100%',
+              },
+              'bbMediaWrapper-inner iframe': {
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+              },
+              'bbMediaWrapper': {
+                width: 'auto',
+                maxWidth: '100%',
+              },
+              // 'bbMediaJustifier': {
+              //   maxWidth: '100%',
+              // },
+              // 'bbMediaWrapper-inner': {
+              //   position: 'relative',
+              //   paddingBottom: '56.25%',
+              //   height: 0,
+              // }
+            }}
+          />
+          <PostFooter/>
+        </View>
+        <Divider style={{
+          backgroundColor: 'rgba(76,76,76,0.33)',
+          height: 5
+        }}/>
+      </>
+    )
+  }
+
   render() {
     const {
       numberOfPages,
@@ -186,7 +315,7 @@ class ThreadDetail extends React.Component {
       <View style={
         {
           flex: 1,
-          backgroundColor: '#fff',
+          backgroundColor: themes.backgroundColor,
         }
       }>
         <Spinner
@@ -214,9 +343,18 @@ class ThreadDetail extends React.Component {
 
             <ScrollView
               refreshControl={
-                <RefreshControl refreshing={refreshing}
-                                onRefresh={this.onRefresh}/>
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={this.onRefresh}
+                  style={{
+                    tintColor: '#fff',
+                    colors: ['#fff']
+                  }}
+                />
               }
+              ref={ref => {
+                this.scroll = ref;
+              }}
             >
               <View
                 key={'view-title'}

@@ -9,6 +9,7 @@
     "eject": "expo eject",
     "test": "jest --watchAll",
     "build:android": "expo build:android",
+    "build:android-apk": "expo build:android -t apk"
   },
   "jest": {
     "preset": "jest-expo"
